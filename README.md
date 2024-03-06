@@ -1,4 +1,4 @@
-A implmentation of the A* pathfinding algorithm (with visualization) in C++ with SFML. Currently it is only compatible with A*, I hope to build it out to work with more pathfinding algorithms such as BFS, and Dijkstras.
+A implementation of the A* pathfinding algorithm (with visualization) in C++ with SFML. Currently it is only compatible with A*, I hope to build it out to work with more pathfinding algorithms such as BFS, and Dijkstras.
 
 
 
