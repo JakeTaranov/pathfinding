@@ -33,8 +33,8 @@ namespace GLOBALS
 		struct Node {
 			int row;
 			int col;
-			double fCost = 100000;
-			double gCost = 100000;
+			double fCost = std::numeric_limits<double>::max();
+			double gCost = std::numeric_limits<double>::max();;
 			double hCost = -1;
 			bool traversable = true;
 			bool openSet = false;
