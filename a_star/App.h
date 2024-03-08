@@ -7,20 +7,20 @@
 class App
 {
 private:
-	sf::RenderWindow window;
-	sf::Font font;
-	sf::Text text;
-	sf::Event event;
-	std::ostringstream grid_string;
+	sf::RenderWindow m_window;
+	sf::Font m_font;
+	sf::Text m_text;
+	sf::Event m_event;
+	std::ostringstream m_grid_string;
 
 
-	sf::Vector2i mousePosScreen;
-	sf::Vector2i mousePosWindow;
-	sf::Vector2f mousePosView;
-	sf::Vector2i mousePosGrid;
+	sf::Vector2i m_mousePosScreen;
+	sf::Vector2i m_mousePosWindow;
+	sf::Vector2f m_mousePosView;
+	sf::Vector2i m_mousePosGrid;
 
-	sf::Vector2i curStart = sf::Vector2i(0,0); // keeps track of previous start x, y coords so we cant redraw the start
-	sf::Vector2i curEnd = sf::Vector2i(0,0); // similar as above
+	sf::Vector2i m_curStart = sf::Vector2i(0,0); // keeps track of previous start x, y coords so we cant redraw the start
+	sf::Vector2i m_curEnd = sf::Vector2i(0,0); // similar as above
 
 	enum selectionStates {
 		start,
@@ -28,10 +28,16 @@ private:
 		border,
 	};
 
-	selectionStates drawState = border;
+	//sf::Vector3<sf::String> drawStateMap = sf::Vector3<sf::String>("Start", "End", "Borders");
 
 
-	std::vector<std::vector<GLOBALS::NODE::Node>> tileMap;
+	const char* m_drawStateMap[3] = { "Start", "End", "Borders" };
+
+	selectionStates m_drawState = border;
+
+	bool m_diagonals = false;
+
+	std::vector<std::vector<GLOBALS::NODE::Node>> m_tileMap;
 
 
 	void initWindow();

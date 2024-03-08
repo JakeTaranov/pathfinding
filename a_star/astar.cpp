@@ -4,18 +4,7 @@
 #include <iostream>
 #include <queue>
 
-// TODO
-// - figure out pointer stuff 
-// - update as we go through a*, keep track of closed and open nodes -> pass astar a reference to the window OR create a draw map function in App and call from reference of app.
-// - possible performace increase, check to make sure we are not looking at a already visited cell
-// - figure out why it is so slow
-// - add diagonals
-//
-//
-
-
 Astar::Astar(App& appInstance) : app(appInstance) {}
-
 
 // returns the adjacents cells of (x, y) 
 // TODO: Add diagonal
@@ -23,24 +12,24 @@ std::vector<std::vector<int>> Astar::findAdjacentCells(int col, int row, std::ve
 	std::vector<std::vector<int>> adjCells;
 
 
-	//if (diagonals) {
-	//	// diag top left
-	//	if (row - 1 >= 0 && col - 1 >= 0 && tileMap[col - 1][row - 1].traversable) {
-	//		adjCells.push_back({ row - 1 , col - 1 });
-	//	}
-	//	// diag top right
-	//	if (row + 1 >= 0 && col - 1 >= 0 && tileMap[col - 1][row + 1].traversable) {
-	//		adjCells.push_back({ row + 1 , col - 1 });
-	//	}
-	//	// diag bottom left
-	//	if (row - 1 >= 0 && col + 1 >= 0 && tileMap[col + 1][row - 1].traversable) {
-	//		adjCells.push_back({ row - 1 , col + 1 });
-	//	}
-	//	// diag bottom right
-	//	if (row + 1 >= 0 && col + 1 >= 0 && tileMap[col + 1][row + 1].traversable) {
-	//		adjCells.push_back({ row + 1 , col + 1 });
-	//	}
-	//}
+	if (diagonals) {
+		// diag top left
+		if (row - 1 >= 0 && col - 1 >= 0 && tileMap[col - 1][row - 1].traversable && tileMap[col - 1][row].traversable && tileMap[col][row-1].traversable) {
+			adjCells.push_back({ row - 1 , col - 1 });
+		}
+		// diag top right
+		if (row + 1 >= 0 && col - 1 >= 0 && tileMap[col - 1][row + 1].traversable && tileMap[col - 1][row].traversable && tileMap[col][row + 1].traversable) {
+			adjCells.push_back({ row + 1 , col - 1 });
+		}
+		// diag bottom left
+		if (row - 1 >= 0 && col + 1 >= 0 && tileMap[col + 1][row - 1].traversable && tileMap[col + 1][row].traversable && tileMap[col][row + 1].traversable){
+			adjCells.push_back({ row - 1 , col + 1 });
+		}
+		// diag bottom right
+		if (row + 1 >= 0 && col + 1 >= 0 && tileMap[col + 1][row + 1].traversable && tileMap[col + 1][row].traversable && tileMap[col][row + 1].traversable) {
+			adjCells.push_back({ row + 1 , col + 1 });
+		}
+	}
 	// left
 	if (row - 1 >= 0 && tileMap[col][row-1].traversable) {
 		adjCells.push_back({ row - 1 , col });
@@ -84,7 +73,7 @@ struct CompareNodes {
 };
 
 // note that x and y are flipped
-void Astar::pathfind(std::vector<std::vector<GLOBALS::NODE::Node>>& tileMap, int sCol, int sRow, int eCol, int eRow) {
+void Astar::pathfind(std::vector<std::vector<GLOBALS::NODE::Node>>& tileMap, int sCol, int sRow, int eCol, int eRow, bool diagonals) {
 
 	//std::vector<GLOBALS::NODE::Node*> openList;
 	std::vector<GLOBALS::NODE::Node*> closedList;
@@ -92,7 +81,6 @@ void Astar::pathfind(std::vector<std::vector<GLOBALS::NODE::Node>>& tileMap, int
 
 	GLOBALS::NODE::Node* endNode = &tileMap[eCol][eRow];
 
-	bool diagonals = true;
 	tileMap[sCol][sRow].gCost = 0;
 	tileMap[sCol][sRow].fCost = 0;
 

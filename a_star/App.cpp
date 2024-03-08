@@ -10,14 +10,14 @@ App::App() {
 }
 
 void App::render() {
-	this->window.clear();
+	this->m_window.clear();
 
 	this->drawMap();
 
-	this->window.draw(this->text);
+	this->m_window.draw(this->m_text);
 
 
-	this->window.display();
+	this->m_window.display();
 }
 
 void App::drawMap() {
@@ -25,26 +25,26 @@ void App::drawMap() {
 	{
 		for (int y = 0; y < GLOBALS::MAP::MAP_SIZE; y++)
 		{
-			this->tileMap[x][y].rect.setFillColor(this->tileMap[x][y].color);
-			this->window.draw(this->tileMap[x][y].rect);
+			this->m_tileMap[x][y].rect.setFillColor(this->m_tileMap[x][y].color);
+			this->m_window.draw(this->m_tileMap[x][y].rect);
 		}
 	}
 }
 
 
 void App::initWindow() {
-	this->window.create(sf::VideoMode(GLOBALS::SCREEN::WIDTH, GLOBALS::SCREEN::HEIGHT), "A*");
+	this->m_window.create(sf::VideoMode(GLOBALS::SCREEN::WIDTH, GLOBALS::SCREEN::HEIGHT), "A*");
 }
 
 void App::initBoard() {
 	//this->tileMap.resize(GLOBALS::MAP::MAP_SIZE, std::vector < sf::RectangleShape>());
 	//this->tileMap.
 
-	this->tileMap.resize(GLOBALS::MAP::MAP_SIZE, std::vector <GLOBALS::NODE::Node>());
+	this->m_tileMap.resize(GLOBALS::MAP::MAP_SIZE, std::vector <GLOBALS::NODE::Node>());
 
 	for (int x = 0; x < GLOBALS::MAP::MAP_SIZE; x++)
 	{
-		this->tileMap[x].resize(GLOBALS::MAP::MAP_SIZE, GLOBALS::NODE::Node());
+		this->m_tileMap[x].resize(GLOBALS::MAP::MAP_SIZE, GLOBALS::NODE::Node());
 
 		for (int y = 0; y < GLOBALS::MAP::MAP_SIZE; y++)
 		{
@@ -59,7 +59,7 @@ void App::initBoard() {
 			node.row = y;
 			node.col = x;
 			// add node to tile map
-			this->tileMap[x][y] = node;
+			this->m_tileMap[x][y] = node;
 
 		}
 	}
@@ -69,50 +69,52 @@ void App::initBoard() {
 
 
 void App::initFonts() {
-	this->font.loadFromFile("Fonts/RobotoMono-Regular.ttf");
+	this->m_font.loadFromFile("Fonts/RobotoMono-Regular.ttf");
 }
 
 void App::initText() {
-	this->text.setCharacterSize(15.f);
-	this->text.setFillColor(sf::Color::Black);
-	this->text.setFont(this->font);
-	this->text.setPosition(30, 38.f);
+	this->m_text.setCharacterSize(15.f);
+	this->m_text.setFillColor(sf::Color::Black);
+	this->m_text.setFont(this->m_font);
+	this->m_text.setPosition(30, 38.f);
 }
 
 void App::handleEvents() {
-	while (this->window.pollEvent(this->event)) {
-		switch (this->event.type) {
-		case sf::Event::Closed: { this->window.close(); }
+	while (this->m_window.pollEvent(this->m_event)) {
+		switch (this->m_event.type) {
+		case sf::Event::Closed: { this->m_window.close(); }
 		}
 	}
 }
 
 void App::updateText() {
 	std::ostringstream ss;
-	ss << "Mode: A*" << std::endl << "Diagonals: " << "false" << std::endl;
+	ss << "Mode: A*" << std::endl << "Diagonals: " << std::boolalpha << this->m_diagonals << std::endl;
+	ss << "Draw Mode: " << this->m_drawStateMap[this->m_drawState] << std::endl;
+
 	//ss << "Hold S + Right Click to Select Start" << std::endl << "Hold E + Right Click to Select End" << std::endl << "ENTER to begin simulation";
 //	ss << "GRID:" << " " << this->mousePosGrid.x << " " << this->mousePosGrid.y << std::endl << "TEST: 5";
-	this->text.setString(ss.str());
+	this->m_text.setString(ss.str());
 }
 
 void App::updateMousePositions() {
-	this->mousePosScreen = sf::Mouse::getPosition();
-	this->mousePosWindow = sf::Mouse::getPosition(this->window);
-	this->mousePosView = window.mapPixelToCoords(this->mousePosWindow);
+	this->m_mousePosScreen = sf::Mouse::getPosition();
+	this->m_mousePosWindow = sf::Mouse::getPosition(this->m_window);
+	this->m_mousePosView = m_window.mapPixelToCoords(this->m_mousePosWindow);
 
 	// calculates the grid positions
-	if (mousePosView.x >= 0.f)
+	if (m_mousePosView.x >= 0.f)
 	{
-		mousePosGrid.x = mousePosView.x / GLOBALS::MAP::CELL_SIZE_U;
+		m_mousePosGrid.x = m_mousePosView.x / GLOBALS::MAP::CELL_SIZE_U;
 	}
-	if (mousePosView.y >= 0.f)
+	if (m_mousePosView.y >= 0.f)
 	{
-		mousePosGrid.y = mousePosView.y / GLOBALS::MAP::CELL_SIZE_U;
+		m_mousePosGrid.y = m_mousePosView.y / GLOBALS::MAP::CELL_SIZE_U;
 	}
 }
 
 bool App::checkCellValid() {
-	return (this->mousePosGrid.x >= 0 && this->mousePosGrid.x <= (GLOBALS::SCREEN::WIDTH / GLOBALS::MAP::CELL_SIZE) - 1 && this->mousePosGrid.y >= 0 && this->mousePosGrid.y <= (GLOBALS::SCREEN::HEIGHT / GLOBALS::MAP::CELL_SIZE) - 1);
+	return (this->m_mousePosGrid.x >= 0 && this->m_mousePosGrid.x <= (GLOBALS::SCREEN::WIDTH / GLOBALS::MAP::CELL_SIZE) - 1 && this->m_mousePosGrid.y >= 0 && this->m_mousePosGrid.y <= (GLOBALS::SCREEN::HEIGHT / GLOBALS::MAP::CELL_SIZE) - 1);
 }
 
 void App::clearAllCells() {
@@ -121,7 +123,7 @@ void App::clearAllCells() {
 
 void App::startAstar() {
 	Astar pathfinder = Astar(*this);
-	pathfinder.pathfind(this->tileMap, this->curStart.x, this->curStart.y, this->curEnd.x, this->curEnd.y);
+	pathfinder.pathfind(this->m_tileMap, this->m_curStart.x, this->m_curStart.y, this->m_curEnd.x, this->m_curEnd.y, this->m_diagonals);
 	//this->markPaths();
 }
 
@@ -134,39 +136,37 @@ void App::updateCellData() {
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) { // draw
 		if (checkCellValid()) {
 
-			switch (this->drawState) {
+			switch (this->m_drawState) {
 			case start:
 				// clear old selection
-				this->tileMap[this->curStart.x][this->curStart.y].color = sf::Color::White;
+				this->m_tileMap[this->m_curStart.x][this->m_curStart.y].color = sf::Color::White;
 				// draw node green
-				this->tileMap[this->mousePosGrid.x][this->mousePosGrid.y].color = sf::Color::Green;
+				this->m_tileMap[this->m_mousePosGrid.x][this->m_mousePosGrid.y].color = sf::Color::Green;
 				// update the node start properties
-				this->tileMap[this->mousePosGrid.x][this->mousePosGrid.y].start = true;
+				this->m_tileMap[this->m_mousePosGrid.x][this->m_mousePosGrid.y].start = true;
 
-				this->curStart.x = mousePosGrid.x;
-				this->curStart.y = mousePosGrid.y;
+				this->m_curStart.x = m_mousePosGrid.x;
+				this->m_curStart.y = m_mousePosGrid.y;
 
 
 				break;
 			case end:
 				// clear old selection
-				this->tileMap[this->curEnd.x][this->curEnd.y].color = sf::Color::White;
+				this->m_tileMap[this->m_curEnd.x][this->m_curEnd.y].color = sf::Color::White;
 				// draw node red
-				this->tileMap[this->mousePosGrid.x][this->mousePosGrid.y].color = sf::Color::Red;
+				this->m_tileMap[this->m_mousePosGrid.x][this->m_mousePosGrid.y].color = sf::Color::Red;
 				// update the nodes end properties 
-				this->tileMap[this->mousePosGrid.x][this->mousePosGrid.y].end = true;
+				this->m_tileMap[this->m_mousePosGrid.x][this->m_mousePosGrid.y].end = true;
 
 
-				this->curEnd.x = mousePosGrid.x;
-				this->curEnd.y = mousePosGrid.y;
-
-
+				this->m_curEnd.x = m_mousePosGrid.x;
+				this->m_curEnd.y = m_mousePosGrid.y;
 
 				break;
 			case border:
-				this->tileMap[this->mousePosGrid.x][this->mousePosGrid.y].color = sf::Color::Black;
+				this->m_tileMap[this->m_mousePosGrid.x][this->m_mousePosGrid.y].color = sf::Color::Black;
 				// update the nodes traversable properties
-				this->tileMap[this->mousePosGrid.x][this->mousePosGrid.y].traversable = false;
+				this->m_tileMap[this->m_mousePosGrid.x][this->m_mousePosGrid.y].traversable = false;
 				break;
 
 
@@ -177,13 +177,16 @@ void App::updateCellData() {
 		this->startAstar();
 	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) { // select start position
-		this->drawState = start;
+		this->m_drawState = start;
 	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) { // select end position
-		this->drawState = end;
+		this->m_drawState = end;
 	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::B)) { // select borders position
-		this->drawState = border;
+		this->m_drawState = border;
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) { // select diagonals 
+		this->m_diagonals = !this->m_diagonals;
 	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C)) { // clear all cells
 		this->clearAllCells();
@@ -201,7 +204,7 @@ void App::update() {
 
 
 bool App::isRunning() {
-	return this->window.isOpen();
+	return this->m_window.isOpen();
 }
 
 
